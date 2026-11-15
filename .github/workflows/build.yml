@@ -13,7 +13,7 @@ jobs:
       - name: Clang
         run: |
           mkdir -p $HOME/clang && cd $HOME/clang
-          curl -LO "https://githubusercontent.com"
+          curl -LO "https://githubusercontent.com/Neutron-Toolchains/antman/main/antman"
           chmod +x antman && ./antman -S
       - name: Compile
         run: |
