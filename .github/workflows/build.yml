@@ -9,15 +9,10 @@ jobs:
         with:
           fetch-depth: 1
       - name: Dependencies
-        run: sudo apt-get update && sudo apt-get install -y bc bison build-essential ccache curl flex libssl-dev libncurses5-dev lzop zip wget python3 device-tree-compiler zstd
-      - name: Clang
-        run: |
-          mkdir -p $HOME/clang && cd $HOME/clang
-          curl -LO "https://githubusercontent.com/Neutron-Toolchains/antman/main/antman"
-          chmod +x antman && ./antman -S
+        run: sudo apt-get update && sudo apt-get install -y bc bison build-essential ccache curl flex libssl-dev libncurses5-dev lzop zip wget python3 device-tree-compiler clang lld llvm gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi
       - name: Compile
         run: |
-          export ARCH=arm64 SUBARCH=arm64 PATH="$HOME/clang/bin:$PATH"
+          export ARCH=arm64 SUBARCH=arm64
           make O=out ARCH=arm64 vendor/mt6768_defconfig vendor/lancelot.config
           make -j$(nproc --all) O=out ARCH=arm64 CC=clang LLVM=1 LLVM_IAS=1 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
       - name: Package
