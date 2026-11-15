@@ -14,6 +14,7 @@ jobs:
         run: |
           export ARCH=arm64 SUBARCH=arm64
           make O=out ARCH=arm64 vendor/mt6768_defconfig vendor/lancelot.config
+          make O=out ARCH=arm64 headers_install
           make -j$(nproc --all) O=out ARCH=arm64 CC=clang LLVM=1 LLVM_IAS=1 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
       - name: Package
         run: |
