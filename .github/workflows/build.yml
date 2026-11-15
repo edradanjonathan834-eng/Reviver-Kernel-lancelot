@@ -1,0 +1,33 @@
+name: Build Reviver OC Kernel
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          depth: 1
+      - name: Dependencies
+        run: sudo apt-get update && sudo apt-get install -y bc bison build-essential ccache curl flex libssl-dev libncurses5-dev lzop zip wget python3 device-tree-compiler
+      - name: Clang
+        run: |
+          mkdir -p $HOME/clang && cd $HOME/clang
+          wget -q https://github.com/ZyCromerZ/Clang/releases/download/18.0.0-20240113-release/Clang-18.0.0-20240113.tar.gz
+          tar -zxf Clang-18.0.0-20240113.tar.gz
+      - name: Compile
+        run: |
+          export ARCH=arm64 SUBARCH=arm64 PATH="$HOME/clang/bin:$PATH"
+          make O=out ARCH=arm64 vendor/mt6768_defconfig vendor/lancelot.config
+          make -j$(nproc --all) O=out ARCH=arm64 CC=clang LLVM=1 LLVM_IAS=1 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+      - name: Package
+        run: |
+          git clone --depth=1 https://github.com/osm0sis/AnyKernel3.git AnyKernel3
+          cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3/ || cp out/arch/arm64/boot/Image.gz AnyKernel3/
+          sed -i 's/do.devicecheck=1/do.devicecheck=0/g' AnyKernel3/anykernel.sh
+          sed -i 's|/dev/block/platform/omap/omap_hsmmc.0/by-name/boot|/dev/block/by-name/boot|g' AnyKernel3/anykernel.sh
+          cd AnyKernel3 && zip -r9 ../Reviver-OC-Lancelot.zip * -x .git README.md *placeholder
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Reviver-OC-Lancelot
+          path: Reviver-OC-Lancelot.zip
