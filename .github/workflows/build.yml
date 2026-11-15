@@ -7,14 +7,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          depth: 1
+          fetch-depth: 1
       - name: Dependencies
-        run: sudo apt-get update && sudo apt-get install -y bc bison build-essential ccache curl flex libssl-dev libncurses5-dev lzop zip wget python3 device-tree-compiler
+        run: sudo apt-get update && sudo apt-get install -y bc bison build-essential ccache curl flex libssl-dev libncurses5-dev lzop zip wget python3 device-tree-compiler zstd
       - name: Clang
         run: |
           mkdir -p $HOME/clang && cd $HOME/clang
-          wget -q https://github.com/ZyCromerZ/Clang/releases/download/18.0.0-20240113-release/Clang-18.0.0-20240113.tar.gz
-          tar -zxf Clang-18.0.0-20240113.tar.gz
+          curl -LO "https://githubusercontent.com"
+          chmod +x antman && ./antman -S
       - name: Compile
         run: |
           export ARCH=arm64 SUBARCH=arm64 PATH="$HOME/clang/bin:$PATH"
