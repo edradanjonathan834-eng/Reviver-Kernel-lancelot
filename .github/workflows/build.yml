@@ -16,6 +16,15 @@ jobs:
           make O=out ARCH=arm64 vendor/mt6768_defconfig vendor/lancelot.config
           make O=out ARCH=arm64 headers_install
           make -j$(nproc --all) O=out ARCH=arm64 CC=clang LLVM=1 LLVM_IAS=1 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+      - name: Patch Image with KernelPatch (KPM)
+        run: |
+          cd KernelPatch/tools && make && cd ../..
+          cd KernelPatch/kernel && make TARGET_COMPILE=aarch64-linux-gnu- && cd ../..
+          cp out/arch/arm64/boot/Image out/arch/arm64/boot/Image.orig
+          ./KernelPatch/tools/kptools -p -i out/arch/arm64/boot/Image.orig -k KernelPatch/kernel/kpimg -o out/arch/arm64/boot/Image
+          gzip -n -f -9 -c out/arch/arm64/boot/Image > out/arch/arm64/boot/Image.gz
+          cat out/arch/arm64/boot/Image.gz out/arch/arm64/boot/dts/mediatek/*.dtb > out/arch/arm64/boot/Image.gz-dtb
+
       - name: Package
         run: |
           git clone --depth=1 https://github.com/osm0sis/AnyKernel3.git AnyKernel3
